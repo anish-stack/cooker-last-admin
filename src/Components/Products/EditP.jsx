@@ -94,29 +94,35 @@ const EditPoject = () => {
   const handleEdit = async (e) => {
     e.preventDefault();
 
-    // Ensure formData.sizes and formData.files are defined
-    if (!formData.sizes || !Array.isArray(formData.files)) {
-      console.error("Sizes or files are not defined correctly");
-      toast.error("Failed to update product. Please check your input.");
-      return;
-    }
-
     const submitData = new FormData();
 
+    // Append non-nested fields
     for (const key in formData) {
-      if (formData.hasOwnProperty(key) && key !== 'sizes' && key !== 'files') {
+      if (formData.hasOwnProperty(key) && key !== 'sizes' && key !== 'files' && key !== 'addInfo') {
         submitData.append(key, formData[key]);
       }
     }
 
-    // Append sizes and files to the FormData
+    // Append sizes array
     submitData.append('sizes', JSON.stringify(formData.sizes));
-    formData.files.forEach((file) => {
-      submitData.append('images', file);
-    });
-    setIsLoading(true)
+
+    // Append files
+    if (Array.isArray(formData.files)) {
+      formData.files.forEach((file) => {
+        submitData.append('images', file);
+      });
+    }
+
+    // Append nested addInfo object
+    for (const key in formData.addInfo) {
+      if (formData.addInfo.hasOwnProperty(key)) {
+        submitData.append(`addInfo[${key}]`, formData.addInfo[key]);
+      }
+    }
+
+    setIsLoading(true);
     try {
-      const res = await axios.patch(`https:///api.camrosteel.com/api/v1/update-product/${id}`, submitData, {
+      const res = await axios.patch(`https://api.camrosteel.com/api/v1/update-product/${id}`, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -124,19 +130,17 @@ const EditPoject = () => {
 
       console.log(res.data);
       toast.success("Product Updated Successfully");
-
-      setIsLoading(false)
-
+      setIsLoading(false);
 
       // Reloading the page if necessary
       window.location.reload();
     } catch (error) {
-      setIsLoading(false)
-
-      console.error("Error updating product:", error);
+      setIsLoading(false);
+      console.error("Error updating product:", error.response ? error.response.data : error.message);
       toast.error("Failed to update product. Please try again.");
     }
   };
+
 
   const singleProducts = async () => {
     try {
@@ -196,19 +200,19 @@ const EditPoject = () => {
   };
 
   return (
-    
+
     <div className="max-w-4xl mx-auto px-4 py-8">
-        {isLoading ? (
-          <Loader/>
-        ):(
-          <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
           <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
-        
+
           {/* <Link to="/upload" className="text-blue-400 underline">Upload-images</Link> */}
           <form onSubmit={handleEdit} className="space-y-4">
             {/* Product Information */}
             <div className='flex w-ful items-center justify-center\l gap-2'>
-    
+
               <div className='w-1/2'>
                 <input type="text" value={formData.productName} onChange={handleChange} name="productName" placeholder="Product Name" className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
               </div>
@@ -226,7 +230,7 @@ const EditPoject = () => {
                   ))}
                 </select>
               </div>
-    
+
             </div>
             {/* <div className='flex gap-2'>
               <input type="text" value={formData.originalPrice} onChange={handleChange} name="originalPrice" placeholder="originalPrice" className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
@@ -236,7 +240,7 @@ const EditPoject = () => {
               <input type="text" value={formData.vendor} onChange={handleChange} name="vendor" placeholder="Vendor" className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
               <input type="text" value={formData.sku} onChange={handleChange} name="sku" placeholder="SKU" className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
             </div>
-    
+
             <div className='flex gap-2'>
               <input type="text" value={formData.productType} onChange={handleChange} name="productType" placeholder="Product Type" className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
             </div>
@@ -251,13 +255,13 @@ const EditPoject = () => {
             </div>
             {/* Image Upload */}
             <div className='flex gap-2'>
-    
+
               <div className='w-full'>
                 <input type="file" name="images" multiple className="block w-full border-[1px] p-2 mt-1 rounded-md border-gray-900 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" onChange={handleFileChange} />
               </div>
             </div>
-    
-    
+
+
             <div className='flex  gap-2'>
               <div className='w-full'>
                 <select
@@ -316,17 +320,17 @@ const EditPoject = () => {
                 </div>
               ))
             }
-    
-    
+
+
             <button type="button" onClick={addSize} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50">Add Size</button>
             <textarea value={formData.Desc} onChange={handleChange} name="Desc" placeholder="Description" className="block w-full mt-1 rounded-md border-gray-900 border-[1px] p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" />
-    
+
             <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring focus:ring-green-500 focus:ring-opacity-50">Submit</button>
           </form>
-          </>
+        </>
 
-        )}
-     
+      )}
+
     </div>
   );
 };
