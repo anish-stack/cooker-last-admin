@@ -19,7 +19,7 @@ const CategoryManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5002/api/v1/get-All-Main-Categories');
+      const response = await axios.get('https://api.camrosteel.com/api/v1/get-All-Main-Categories');
       setCategories(response.data.data);
     } catch (error) {
       toast.error('Failed to fetch categories');
@@ -38,10 +38,10 @@ const CategoryManager = () => {
   const handleCreateEdit = async () => {
     try {
       if (isEditMode) {
-        await axios.put(`http://localhost:5002/api/v1/Update-Main-Category/${currentCategory._id}`, currentCategory);
+        await axios.put(`https://api.camrosteel.com/api/v1/Update-Main-Category/${currentCategory._id}`, currentCategory);
         toast.success('Category updated successfully');
       } else {
-        await axios.post('http://localhost:5002/api/v1/Create-Main-Category', currentCategory);
+        await axios.post('https://api.camrosteel.com/api/v1/Create-Main-Category', currentCategory);
         toast.success('Category created successfully');
       }
       fetchCategories();
@@ -53,7 +53,7 @@ const CategoryManager = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5002/api/v1/Delete-Main-Category/${id}`);
+      await axios.delete(`https://api.camrosteel.com/api/v1/Delete-Main-Category/${id}`);
       toast.success('Category deleted successfully');
       fetchCategories();
       setDeleteCategoryId(null);
