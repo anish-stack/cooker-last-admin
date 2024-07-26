@@ -21,6 +21,7 @@ import EditPoject from "../Components/Products/EditP"
 import CreateCategoryForm from "../Components/Products/CreateCategoryForm"
 import AllTags from "../Components/Products/AllTags"
 import CreateTags from "../Components/Products/CreateTags"
+import CategoryManager from "../Components/MainCategories/CategoryManager"
 const Home = () => {
   return (
     <div className="w-full flex">
@@ -48,6 +49,7 @@ const Home = () => {
 
             <Route path="/tags" element={<AllTags/>} />
             <Route path="/Create-tags" element={<CreateTags/>} />
+            <Route path="/Main-Categories" element={<CategoryManager/>} />
 
 
 
